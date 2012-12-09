@@ -15,3 +15,11 @@
 *.exe
 *.out
 *.app
+
+# Firmware
+*.hex
+*.elf
+
+# Eclipse
+.cproject
+.project
