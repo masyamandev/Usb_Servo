@@ -127,6 +127,7 @@ static void usage(char *myName)
     fprintf(stderr, "usage:\n");
     fprintf(stderr, "  %s read\n", myName);
     fprintf(stderr, "  %s write <listofpositions>\n", myName);
+    fprintf(stderr, "hint: to use servos, values should be in range 1217..3500 (for 12MHz clock).\n");
 }
 
 int main(int argc, char **argv)
