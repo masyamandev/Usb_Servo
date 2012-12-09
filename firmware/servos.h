@@ -18,7 +18,7 @@
 /*
  * Output port.
  */
-//#define SERVO_PORT B
+#define SERVO_PORT B
 
 /*
  * Output pins.

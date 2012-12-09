@@ -3,10 +3,10 @@
 #include <avr/interrupt.h>  /* for sei() */
 #include "servos.h"
 
-#define PORT_CONCAT(a, b)       a ## b
-#define SERVO_OUTPORT           PORT_CONCAT(PORT, B)
-#define SERVO_INPORT            PORT_CONCAT(PIN, B)
-#define SERVO_DDRPORT           PORT_CONCAT(DDR, B)
+#define PORT_CONCAT(a, b)             a ## b
+#define SERVO_OUTPORT(name)           PORT_CONCAT(PORT, name)
+#define SERVO_INPORT(name)            PORT_CONCAT(PIN, name)
+#define SERVO_DDRPORT(name)           PORT_CONCAT(DDR, name)
 
 
 struct ServoPos {
@@ -30,15 +30,15 @@ inline void setPosition(uint8_t servoId, uint16_t servoPos) {
 inline void initNextServoInterrupt() {
 	uint16_t nextDelay;
 	// set pins and calculate next delay
-	SERVO_DDRPORT |= SERVO_PINS[currentServo];
+	SERVO_DDRPORT(SERVO_PORT) |= SERVO_PINS[currentServo];
 	if (currentServoOutput) {
 		nextDelay = TICKS_PER_SERVO - servos[currentServo].pos;
 		currentServoOutput = 0;
-		SERVO_OUTPORT &= ~SERVO_PINS[currentServo];
+		SERVO_OUTPORT(SERVO_PORT) &= ~SERVO_PINS[currentServo];
 	} else {
 		nextDelay = servos[currentServo].pos;
 		currentServoOutput = 1;
-		SERVO_OUTPORT |= SERVO_PINS[currentServo];
+		SERVO_OUTPORT(SERVO_PORT) |= SERVO_PINS[currentServo];
 	}
 	// switch to next servo
 	if (! currentServoOutput) {
