@@ -31,6 +31,8 @@ at least be connected to INT0 as well.
 /* ----------------------------- USB interface ----------------------------- */
 /* ------------------------------------------------------------------------- */
 
+#define INTERRUPT_OFF_BEFORE_SWITCH 250
+
 #define REPORT_LENGTH 	(SERVO_NUM * sizeof(uint16_t))
 #define LOGICAL_MIN 	1
 #define LOGICAL_MAX 	(TICKS_PER_SERVO - 1)
@@ -160,12 +162,13 @@ uchar   i;
     uint16_t nextDelay;
     for(;;){                /* main event loop */
     	nextDelay = controlServos();
-    	if (nextDelay > 10) {
+    	if (nextDelay >= INTERRUPT_OFF_BEFORE_SWITCH) {
+    		sei(); // enable interrupts, there are a lot of time before output switch
 			DBG1(0x02, 0, 0);   /* debug output: main loop iterates */
 			wdt_reset();
-			if (nextDelay > 100) {
-				usbPoll();
-			}
+			usbPoll();
+    	} else {
+    		cli(); // disable interrupts, output should be switched in nearest future
     	}
     }
     return 0;

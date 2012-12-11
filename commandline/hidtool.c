@@ -15,7 +15,7 @@
 #include "../firmware/usbconfig.h"  /* for device VID, PID, vendor name and product name */
 //#include "../firmware/servos.h"  /* for number of servos */
 
-#define SERVO_NUM 2
+#define SERVO_NUM 6
 #define REPORT_SIZE (SERVO_NUM * 2 + 1)
 
 /* ------------------------------------------------------------------------- */

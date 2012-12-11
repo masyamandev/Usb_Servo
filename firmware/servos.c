@@ -13,9 +13,9 @@ struct ServoPos {
 	uint16_t pos; // servo position, > 0; < TICKS_PER_SERVO.
 } servos[SERVO_NUM];
 
-uint8_t currentServo = 0;
-uint8_t currentServoOutput = 0;
-uint16_t currentServoDelay = 0;
+volatile uint8_t currentServo = 0;
+volatile uint8_t currentServoOutput = 0;
+volatile uint16_t currentServoDelay = 0;
 
 inline void setPosition(uint8_t servoId, uint16_t servoPos) {
 	// Check overflow
@@ -74,8 +74,14 @@ inline void initServos() {
 //}
 
 inline uint16_t controlServos() {
-	if (TCNT1 >= currentServoDelay) {
+	uint16_t timer = TCNT1;
+	if (timer >= currentServoDelay) {
 		initNextServoInterrupt();
+		timer = TCNT1;
 	}
-	return currentServoDelay - TCNT1;
+	if (currentServoOutput) {
+		return currentServoDelay - timer;
+	} else {
+		return currentServoDelay - timer + servos[currentServo].pos;
+	}
 }

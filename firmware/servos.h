@@ -2,13 +2,13 @@
 /*
  * Number of servos
  */
-#define SERVO_NUM 2
+#define SERVO_NUM 6
 
 /*
  * Timer ticks of full servo output period. In the other words it's number of ticks per 10-20ms.
  * F_CPU / 8 / (1 / 0.020)
  */
-#define TICKS_PER_PERIOD 28000
+#define TICKS_PER_PERIOD 30000
 
 /*
  * Available ticks per one servo.
@@ -30,7 +30,7 @@
 /*
  * Output pins.
  */
-const static uint8_t SERVO_PINS[SERVO_NUM] = {1 << PINB1, 1 << PINB2};
+const static uint8_t SERVO_PINS[SERVO_NUM] = {1 << PINB1, 1 << PINB2, 0, 0, 0, 0};
 
 /*
  * Set position for specified servo.
@@ -45,6 +45,6 @@ inline void initServos();
 
 /*
  * PWM calculation loop. Should be invoked as fast as possible.
- * Returns number of ticks before next pin change occures.
+ * Returns number of ticks before next time-critical pin changes.
  */
 inline uint16_t controlServos();
