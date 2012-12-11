@@ -54,6 +54,15 @@ inline void initNextServoInterrupt() {
 	TCNT1 = 0; // reset timer counter
 }
 
+inline void initServos() {
+	int i;
+	for (i = 0; i < SERVO_NUM; i++) {
+		servos[i].pos = INITIAL_SERVOS_POSITION;
+	}
+	initNextServoInterrupt();
+	sei();
+}
+
 ISR(TIMER1_COMPA_vect) {
 	TIMSK = 0; // switch off timer interrupt
 	sei(); // switch on USB interrupt

@@ -144,6 +144,7 @@ uchar   i;
      * That's the way we need D+ and D-. Therefore we don't need any
      * additional hardware initialization.
      */
+    initServos();
     odDebugInit();
     DBG1(0x00, 0, 0);       /* debug output: main starts */
     usbInit();
@@ -153,10 +154,8 @@ uchar   i;
         wdt_reset();
         _delay_ms(1);
     }
-    updateServoPositions();
     usbDeviceConnect();
     sei();
-    initNextServoInterrupt();
     DBG1(0x01, 0, 0);       /* debug output: main loop starts */
     for(;;){                /* main event loop */
         DBG1(0x02, 0, 0);   /* debug output: main loop iterates */
