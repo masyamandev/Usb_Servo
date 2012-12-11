@@ -39,11 +39,12 @@ const static uint8_t SERVO_PINS[SERVO_NUM] = {1 << PINB1, 1 << PINB2};
 inline void setPosition(uint8_t servoId, uint16_t servoPos);
 
 /*
- * Init interrupt for controlling servos.
- */
-// inline void initNextServoInterrupt();
-
-/*
  * Put servos in default position and init timer.
  */
 inline void initServos();
+
+/*
+ * PWM calculation loop. Should be invoked as fast as possible.
+ * Returns number of ticks before next pin change occures.
+ */
+inline uint16_t controlServos();

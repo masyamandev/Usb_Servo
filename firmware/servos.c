@@ -15,6 +15,7 @@ struct ServoPos {
 
 uint8_t currentServo = 0;
 uint8_t currentServoOutput = 0;
+uint16_t currentServoDelay = 0;
 
 inline void setPosition(uint8_t servoId, uint16_t servoPos) {
 	// Check overflow
@@ -28,15 +29,14 @@ inline void setPosition(uint8_t servoId, uint16_t servoPos) {
 }
 
 inline void initNextServoInterrupt() {
-	uint16_t nextDelay;
 	// set pins and calculate next delay
 	SERVO_DDRPORT(SERVO_PORT) |= SERVO_PINS[currentServo];
 	if (currentServoOutput) {
-		nextDelay = TICKS_PER_SERVO - servos[currentServo].pos;
+		currentServoDelay = TICKS_PER_SERVO - servos[currentServo].pos;
 		currentServoOutput = 0;
 		SERVO_OUTPORT(SERVO_PORT) &= ~SERVO_PINS[currentServo];
 	} else {
-		nextDelay = servos[currentServo].pos;
+		currentServoDelay = servos[currentServo].pos;
 		currentServoOutput = 1;
 		SERVO_OUTPORT(SERVO_PORT) |= SERVO_PINS[currentServo];
 	}
@@ -48,10 +48,10 @@ inline void initNextServoInterrupt() {
 		}
 	}
 	// init next timer interrupt
-	OCR1A = nextDelay;
-	TCCR1B |= (1 << CS11); // Set up timer (prescale / 8)
-	TIMSK = (1 << OCIE1A); // Enable interrupt on OCR1A
 	TCNT1 = 0; // reset timer counter
+
+//	OCR1A = currentServoDelay;
+//	TIMSK = (1 << OCIE1A); // Enable interrupt on OCR1A
 }
 
 inline void initServos() {
@@ -60,11 +60,22 @@ inline void initServos() {
 		servos[i].pos = INITIAL_SERVOS_POSITION;
 	}
 	initNextServoInterrupt();
-	sei();
+
+	// Init timer
+	TCCR1B |= (1 << CS11); // Set up timer (prescale / 8)
+	TCNT1 = 0; // reset timer counter
+//	sei();
 }
 
-ISR(TIMER1_COMPA_vect) {
-	TIMSK = 0; // switch off timer interrupt
-	sei(); // switch on USB interrupt
-	initNextServoInterrupt();
+//ISR(TIMER1_COMPA_vect) {
+//	TIMSK = 0; // switch off timer interrupt
+//	sei(); // switch on USB interrupt
+//	initNextServoInterrupt();
+//}
+
+inline uint16_t controlServos() {
+	if (TCNT1 >= currentServoDelay) {
+		initNextServoInterrupt();
+	}
+	return currentServoDelay - TCNT1;
 }

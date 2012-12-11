@@ -157,10 +157,16 @@ uchar   i;
     usbDeviceConnect();
     sei();
     DBG1(0x01, 0, 0);       /* debug output: main loop starts */
+    uint16_t nextDelay;
     for(;;){                /* main event loop */
-        DBG1(0x02, 0, 0);   /* debug output: main loop iterates */
-        wdt_reset();
-        usbPoll();
+    	nextDelay = controlServos();
+    	if (nextDelay > 10) {
+			DBG1(0x02, 0, 0);   /* debug output: main loop iterates */
+			wdt_reset();
+			if (nextDelay > 100) {
+				usbPoll();
+			}
+    	}
     }
     return 0;
 }
