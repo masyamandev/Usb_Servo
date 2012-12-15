@@ -64,24 +64,6 @@ static usbDevice_t *openDevice(void) {
 
 /* ------------------------------------------------------------------------- */
 
-static void hexdump(char *buffer, int len) {
-	int i;
-	FILE *fp = stdout;
-
-	for (i = 0; i < len; i++) {
-		if (i != 0) {
-			if (i % 16 == 0) {
-				fprintf(fp, "\n");
-			} else {
-				fprintf(fp, " ");
-			}
-		}
-		fprintf(fp, "0x%02x", buffer[i] & 0xff);
-	}
-	if (i != 0)
-		fprintf(fp, "\n");
-}
-
 static void int16dump(char *buffer, int len) {
 	int i;
 	FILE *fp = stdout;
@@ -99,17 +81,6 @@ static void int16dump(char *buffer, int len) {
 	}
 	if (i != 0)
 		fprintf(fp, "\n");
-}
-
-static int hexread(char *buffer, char *string, int buflen) {
-	char *s;
-	int pos = 0;
-
-	while ((s = strtok(string, ", ")) != NULL && pos < buflen) {
-		string = NULL;
-		buffer[pos++] = (char) strtol(s, NULL, 0);
-	}
-	return pos;
 }
 
 static int int16read(char *buffer, char *string, int buflen) {
@@ -163,6 +134,35 @@ int main(int argc, char **argv) {
 		}
 		if ((err = usbhidSetReport(dev, buffer, sizeof(buffer))) != 0) /* add a dummy report ID */
 			fprintf(stderr, "error writing data: %s\n", usbErrorMessage(err));
+	} else if (strcasecmp(argv[1], "writeinput") == 0) {
+		int i, pos;
+		// read initial positions
+		int len = sizeof(buffer);
+		if ((err = usbhidGetReport(dev, 0, buffer, &len)) != 0) {
+			fprintf(stderr, "error reading data: %s\n", usbErrorMessage(err));
+		}
+		// int16dump(buffer + 1, sizeof(buffer) - 1);
+		char input[1000];
+		int scanfEof;
+		do {
+			scanfEof = scanf("%[^\n]%*c", input);
+			// printf("[%i] %s\n", scanfEof, input);
+			int16read(buffer + 1, input, sizeof(buffer) - 1);
+			// int16dump(buffer + 1, sizeof(buffer) - 1);
+			buffer[0] ++;
+			if ((err = usbhidSetReport(dev, buffer, sizeof(buffer))) != 0) { /* add a dummy report ID */
+				fprintf(stderr, "error writing data: %s\n", usbErrorMessage(err));
+				// reconnect
+				usbhidCloseDevice(dev);
+				dev = openDevice();
+			}
+			//usleep(20000);
+		} while (scanfEof > 0);
+//		for (pos = 1, i = 2; i < argc && pos < sizeof(buffer); i++) {
+//			pos += int16read(buffer + pos, argv[i], sizeof(buffer) - pos);
+//		}
+//		if ((err = usbhidSetReport(dev, buffer, sizeof(buffer))) != 0) /* add a dummy report ID */
+//			fprintf(stderr, "error writing data: %s\n", usbErrorMessage(err));
 	} else {
 		usage(argv[0]);
 		exit(1);

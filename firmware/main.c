@@ -31,7 +31,7 @@ at least be connected to INT0 as well.
 /* ----------------------------- USB interface ----------------------------- */
 /* ------------------------------------------------------------------------- */
 
-#define INTERRUPT_OFF_BEFORE_SWITCH 250
+#define INTERRUPT_OFF_BEFORE_SWITCH 300
 
 #define REPORT_LENGTH 	(SERVO_NUM * sizeof(uint16_t))
 #define LOGICAL_MIN 	1
