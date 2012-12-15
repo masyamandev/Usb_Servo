@@ -16,11 +16,17 @@
 #define TICKS_PER_SERVO (TICKS_PER_PERIOD / SERVO_NUM)
 
 /*
+ * Min and max delays (in timer ticks).
+ */
+#define MIN_TICKS 1050
+#define MAX_TICKS 3250
+
+/*
  * Default servos position.
  * Central position can be calculated with this formula:
  * F_CPU / 8 / (1 / ((0.008 + 0.023) / 2))
  */
-#define INITIAL_SERVOS_POSITION 2360
+#define INITIAL_SERVOS_POSITION 1 << 15
 
 /*
  * Output port.

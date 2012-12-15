@@ -14,7 +14,7 @@ FUSE_H  =
 AVRDUDE = avrdude -c usbasp -p $(DEVICE) # edit this line for your programmer
 
 CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0
-OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o servos.o main.o
+OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o libs/Scaler16.o servos.o main.o
 
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE)
 
@@ -123,7 +123,7 @@ flash: main.hex
 
 # rule for deleting dependent files (those which can be built by Make):
 clean:
-	rm -f main.hex main.lst main.obj main.cof main.list main.map main.eep.hex main.elf servos.elf *.o usbdrv/*.o main.s usbdrv/oddebug.s usbdrv/usbdrv.s
+	rm -f main.hex main.lst main.obj main.cof main.list main.map main.eep.hex main.elf servos.elf libs/*.elf libs/*.o *.o usbdrv/*.o main.s usbdrv/oddebug.s usbdrv/usbdrv.s
 
 # Generic rule for compiling C files:
 .c.o:
@@ -148,6 +148,7 @@ usbdrv:
 	cp -r ../../../usbdrv .
 
 main.elf: usbdrv $(OBJECTS)	# usbdrv dependency only needed because we copy it
+	$(COMPILE) -o libs/Scaler16.elf $(OBJECTS)
 	$(COMPILE) -o servos.elf $(OBJECTS)
 	$(COMPILE) -o main.elf $(OBJECTS)
 
@@ -162,5 +163,6 @@ disasm:	main.elf
 	avr-objdump -d main.elf
 
 cpp:
+	$(COMPILE) -E libs/Scaler16.c
 	$(COMPILE) -E servos.c
 	$(COMPILE) -E main.c
