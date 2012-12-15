@@ -150,11 +150,19 @@ int main(int argc, char **argv) {
 			int16read(buffer + 1, input, sizeof(buffer) - 1);
 			// int16dump(buffer + 1, sizeof(buffer) - 1);
 			buffer[0] ++;
-			if ((err = usbhidSetReport(dev, buffer, sizeof(buffer))) != 0) { /* add a dummy report ID */
-				fprintf(stderr, "error writing data: %s\n", usbErrorMessage(err));
-				// reconnect
+			int retry = 0;
+			do {
+				if ((err = usbhidSetReport(dev, buffer, sizeof(buffer))) != 0) { /* add a dummy report ID */
+					fprintf(stderr, "error writing data: %s\n", usbErrorMessage(err));
+				}
+			} while (err != 0 && retry ++ < 3);
+			if (err != 0) {
+				// try to reconnect
 				usbhidCloseDevice(dev);
 				dev = openDevice();
+				if ((err = usbhidSetReport(dev, buffer, sizeof(buffer))) != 0) { /* add a dummy report ID */
+					fprintf(stderr, "error writing data: %s\n", usbErrorMessage(err));
+				}
 			}
 			//usleep(20000);
 		} while (scanfEof > 0);
